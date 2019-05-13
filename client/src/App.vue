@@ -1,17 +1,19 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <HelloWorld/>
+    <Jumbotron/>
+    <Main/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
+import Main from './components/Main'
+import Jumbotron from './components/Jumbotron'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Main,
+    Jumbotron
   }
 }
 </script>

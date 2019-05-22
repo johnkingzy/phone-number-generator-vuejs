@@ -22,12 +22,14 @@ const generateNumbers = () => {
 const isUnique = (data) => {
     if(!data.length) return true;
     let hashTable = Object.create(null);
+    const removePrefix = obj => obj.value.replace(/-/g, '');
       for (let index = 0; index < data.length; index++) {
         const element = data[index];
-        if(element in hashTable) {
+        const value = removePrefix(element);
+        if(value in hashTable) {
             return false;
         }
-        hashTable[element] = true;
+        hashTable[value] = true;
       }
       return true;
 }

@@ -18,10 +18,11 @@ app.get('/api/numbers', function(req, res) {
 
     // read content from json file
     let results = [];
-    let jsonFileReader = fs.readFileSync(jsonStore, 'utf8');
-    if(jsonFileReader) {
+    if (fs.existsSync(jsonStore)) {
+        let jsonFileReader = fs.readFileSync(jsonStore, 'utf8');
         results = JSON.parse(jsonFileReader);
     }
+    
 
     generatedNumbers = generatedNumbers.map((value) => {
         value.id = value.id + (results.length + 1);
@@ -34,13 +35,7 @@ app.get('/api/numbers', function(req, res) {
     ];
 
     // write generated numbers to json file
-    try {
-        fs.writeFileSync(jsonStore, JSON.stringify(mergedNumbers));
-    } catch (error) {
-        return res.status(403).json({
-            message: 'An error occured while saving generated numbers'
-        });
-    }
+    fs.writeFileSync(jsonStore, JSON.stringify(mergedNumbers));
 
     // return a response with status 200 If numbers was generated successfully
     return res.status(200)
@@ -53,3 +48,5 @@ app.get('/api/numbers', function(req, res) {
 app.listen(port, function() {1
     console.log('App is running on port: ', port);
 });
+
+module.exports = app;

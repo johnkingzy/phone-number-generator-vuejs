@@ -7,15 +7,23 @@
     "start": "nodemon src/app.js --ignore 'src/data/' --exec  \"npm run lint && node\"",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js  --fix",
-    "test": "mocha test/**/*.js"
+    "test": "mocha test/**/*.js --exit",
+    "cover": "nyc  --reporter=html mocha test/**/*.js --exit --timeout=3000",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "coveralls": "^3.0.3",
     "eslint": "^5.16.0",
+    "expect": "^24.8.0",
+    "istanbul": "^0.4.5",
     "mocha": "^6.1.4",
-    "nodemon": "^1.19.0"
+    "nodemon": "^1.19.0",
+    "nyc": "^14.1.1",
+    "sinon": "^7.3.2",
+    "supertest": "^4.0.2"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -48,5 +48,8 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'semi': 'off',
     'comma-dangle': 'off',
+    'no-console': 'off',
+    'vue/require-v-for-key': 'off',
+    'vue/valid-v-for': 'off'
   }
 }

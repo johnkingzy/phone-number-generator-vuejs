@@ -7,9 +7,9 @@
     "start": "nodemon src/app.js --ignore 'src/data/' --exec  \"npm run lint && node\"",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js  --fix",
-    "test": "mocha test/**/*.js --exit",
+    "test": "./node_modules/.bin/mocha test/**/*.js --exit",
     "cover": "nyc  --reporter=html mocha test/**/*.js --exit --timeout=3000",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "./node_modules/.bin/nyc report --reporter=text-lcov | coveralls"
   },
   "keywords": [],
   "author": "",

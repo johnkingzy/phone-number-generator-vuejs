@@ -1,7 +1,25 @@
+sudo: required
 language: node_js
 node_js:
 - "stable"
+# setting up environment variables
+env:
+  global:
+    - CXX=g++-4.8
+    - DISPLAY=:99.0
+    - CHROME_BIN=/usr/bin/google-chrome
+# installing Chrome for e2e tests
+addons:
+  apt:
+    sources:
+      - google-chrome
+    packages:
+      - google-chrome-stable
+      - oracle-java9-set-default
+# the following step should start the virtual X frame buffer: Xvfb process
 before_script:
+- "sh -e /etc/init.d/xvfb start"
+- sleep 3 #wait a while before xvfb to start
 - cd client
 - npm install
 - cd ../
@@ -15,4 +33,8 @@ script:
 - cd client
 - npm test
 
-after_success: cd server && npm run coveralls && cd ../client && npm run coveralls
+after_success:
+- npm run coveralls
+- cd ../server
+- npm run coveralls
+- "sh -e /etc/init.d/xvfb stop"

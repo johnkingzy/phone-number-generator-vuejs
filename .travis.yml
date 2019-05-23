@@ -2,10 +2,17 @@ language: node_js
 node_js:
 - "stable"
 before_script:
+- cd client
+- npm install
+- cd ../
 - cd server
 - npm install
 - npm install -g mocha
+
 script:
 - npm test
+- cd ../
+- cd client
+- npm test
 
-after_success: cd server && npm run coverage
+after_success: cd server && npm run coveralls && cd ../client && npm run coveralls

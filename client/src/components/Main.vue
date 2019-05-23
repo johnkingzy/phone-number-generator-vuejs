@@ -18,7 +18,7 @@
               <a
                 @click="order = 'ascending'"
                 :disabled="order == 'ascending'"
-                class="pagination-link"
+                class="pagination-link ascending"
               >
                 <span class="icon is-small">
                   <i class="fas fa-caret-up"></i>
@@ -29,7 +29,7 @@
               <a
                 @click="order = 'descending'"
                 :disabled="order == 'descending'"
-                class="pagination-link"
+                class="pagination-link descending"
               >
                 <span class="icon is-small">
                   <i class="fas fa-caret-down"></i>
@@ -39,7 +39,7 @@
             <li>
               <button
                 @click="generateNumbers()"
-                class="pagination-link has-text-link"
+                class="pagination-link has-text-link generate"
               >Generate Numbers</button>
             </li>
           </ul>
@@ -84,38 +84,32 @@ export default {
       order: 'descending'
     };
   },
-  mounted() {
-    this.generateNumbers();
-  },
   methods: {
-    async generateNumbers() {
-      try {
-        const response = await axios.get('http://localhost:8000/api/numbers');
-        this.totalCount = response.data.numbers.length;
-        this.numbers = response.data.numbers;
-      } catch (error) {
-        console.log('error', error);
-      }
-    },
-    paginate(data) {
-      if (data && data.length) {
-        const start = this.limit * (this.currentPage - 1);
-        const end = this.limit * this.currentPage;
-        return data.slice(start, end);
-      }
-      return false;
+    generateNumbers() {
+      const getPromise = axios.get('http://localhost:8000/api/numbers');
+      getPromise
+        .then((response) => {
+          this.totalCount = response.data.numbers.length;
+          this.numbers = response.data.numbers;
+        })
+      return getPromise;
     },
     sort(data, order) {
-      const removePrefix = obj => Number(obj.value.replace(/-/g, ''));
       switch (order) {
         case 'ascending':
-          return data.sort((a, b) => removePrefix(a) - removePrefix(b));
+          return data.sort((a, b) => this.removePrefix(a) - removePrefix(b));
         case 'descending':
-          return data.sort((a, b) => removePrefix(b) - removePrefix(a));
+          return data.sort((a, b) => this.removePrefix(b) - removePrefix(a));
         default:
           return data;
       }
+    },
+    removePrefix(obj) {
+      return Number(obj.value.replace(/-/g, ''));
     }
+  },
+  mounted() {
+    this.generateNumbers();
   },
   computed: {
     paginatedNumbers() {

@@ -1,8 +1,10 @@
 .DS_Store
+.env
+
 server/node_modules/
 server/.nyc_output/
 server/coverage/**/**
-
+server/dist/
 
 /client/node_modules/
 /client/dist/

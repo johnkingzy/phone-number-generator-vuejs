@@ -6,6 +6,7 @@
  */
 const generateNumbers = () => {
     let results = [];
+    const timestamp = +new Date();
     for (let index = 0; index < 10; index++) {
         let max    = 100000000;
         let min    = 10000000; // Math.pow(10, n) basically
@@ -13,7 +14,7 @@ const generateNumbers = () => {
         results.push({
             id: index + 1,
             value: "081-" + (("" + number).substring(1)),
-            timestamp: +new Date
+            timestamp
         });
     }
     return results;

@@ -34,5 +34,7 @@ script:
 - npm test
 
 after_success:
-- cd server && npm run coveralls && cd ../client && npm run coveralls
+- npm run coveralls
+- cd ../server
+- npm run coveralls
 - "sh -e /etc/init.d/xvfb stop"

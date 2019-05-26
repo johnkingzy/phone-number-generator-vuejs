@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/app.js --ignore 'src/data/' --exec  \"npm run lint && node\"",
+    "start:dev": "nodemon src/app.js --ignore 'src/data/' --exec  \"npm run lint && node\"",
+    "start": "node src/app.js",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js  --fix",
-    "test": "./node_modules/.bin/mocha test/**/*.js --exit",
-    "cover": "nyc  --reporter=html mocha test/**/*.js --exit --timeout=3000",
+    "test": "./node_modules/.bin/_mocha test/**/*.js --exit",
+    "cover": "nyc  --reporter=html _mocha test/**/*.js --exit --timeout=3000",
     "coveralls": "./node_modules/.bin/nyc report --reporter=text-lcov | coveralls"
   },
   "keywords": [],
@@ -27,6 +28,7 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
     "express": "^4.16.4"
   }
 }

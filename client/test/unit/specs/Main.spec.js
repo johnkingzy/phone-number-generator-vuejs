@@ -58,19 +58,26 @@ describe('Main.vue', () => {
   });
 
   it('should make a get request to get generated numbers', async (done) => {
-    try {
-      const result = await wrapper.vm.generateNumbers();
-      expect(result).toEqual(response);
-      expect(wrapper.vm.numbers).toEqual(response.data.numbers);
-      expect(wrapper.vm.totalCount).toEqual(response.data.numbers.length);
-      expect(axios.get).toBeCalledWith('http://localhost:8000/api/numbers');
-      done();
-    } catch (error) {
-      console.log('error', error);
-      done();
-    }
+    const result = await wrapper.vm.generateNumbers();
+    expect(result).toEqual(response);
+    expect(wrapper.vm.numbers).toEqual(response.data.numbers);
+    expect(wrapper.vm.totalCount).toEqual(response.data.numbers.length);
+    expect(wrapper.vm.loading).toBe(false);
+    expect(axios.get).toHaveBeenCalled();
+    done();
   });
 
+  it('should set error messages and disbale loading bar, if an error occured', (done) => {
+    axios.get.mockImplementation(() => Promise.reject());
+    const result = wrapper.vm.generateNumbers();
+    result
+      .then(() => {})
+      .catch(() => {
+        expect(wrapper.vm.loading).toBe(false);
+        expect(wrapper.vm.error).toEqual('An error occured, try refreshing the page');
+        done();
+      })
+  })
   it('should have the pagination buttons', () => {
     expect(wrapper.contains('nav.pagination')).toBe(true)
   });

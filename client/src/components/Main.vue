@@ -62,12 +62,22 @@
         <div>
           <span style="text-transform: capitalize;">Sorting: {{order}}</span>
         </div>
-        <div class="is-pulled-right">
+        <div v-if="totalCount" class="is-pulled-right">
           <span>Page {{currentPage}} of {{totalCount / limit}}</span>
         </div>
       </div>
     </div>
-    <p v-if="!numbers.length" class="panel-block">You haven't generated any phone number</p>
+    <p v-if="!numbers.length && !loading && !error" class="panel-block">
+      You haven't generated any phone number
+    </p>
+    <progress v-if="loading&&  !error" id="loading-icon" class="progress is-small" max="100">
+    </progress>
+    <div id="error" v-if="error.length && !loading">
+      <p>{{error}}</p>
+      <span id="refresh-icon" class="icon">
+        <i class="fas fa-icon fa-redo"></i>
+      </span>
+    </div>
     <!-- Add this tag to enable fade animation -->
     <!-- <transition-group name="list" tag="div"> -->
       <div
@@ -108,16 +118,24 @@ export default {
       currentPage: 1,
       limit: 10,
       totalCount: 0,
-      order: 'recent'
+      order: 'recent',
+      loading: false,
+      error: ''
     };
   },
   methods: {
     generateNumbers() {
       const getPromise = axios.get(`${process.env.API_URL}/api/numbers`);
+      this.loading = true;
       getPromise
         .then((response) => {
           this.totalCount = response.data.numbers.length;
           this.numbers = response.data.numbers;
+          this.loading = false;
+        })
+        .catch(() => {
+          this.error = 'An error occured, try refreshing the page'
+          this.loading = false;
         })
       return getPromise;
     },
@@ -269,5 +287,26 @@ button:hover, a:hover {
 }
 .panel-block:last-child {
   border-bottom: none;
+}
+#loading-icon {
+    border-radius: 0;
+    height: .35rem;
+}
+#loading-icon:indeterminate {
+    background-image: linear-gradient(to right,#623cea 30%,#dbdbdb 30%);
+}
+#error {
+    margin: 3rem;
+    font-size: 15px;
+    font-weight: 500;
+    color: #616994;
+}
+#refresh-icon {
+    padding: 15px;
+    margin: 10px;
+    border: 1px solid #61699457;
+    border-radius: 5rem;
+    font-size: 17px;
+    color: #7a80a6;
 }
 </style>

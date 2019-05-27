@@ -1,15 +1,23 @@
 const express = require('express');
 const fs = require('fs');
 const cors = require('cors');
+const path = require('path');
+const dotenv = require('dotenv');
+
+dotenv.config({
+    path: path.resolve(__dirname, '../../.env')
+});
 
 const helpers = require('./helper');
 
-const port = process.env.port || 8000;
+const port = parseInt(process.env.PORT, 10) || 8000;
 const jsonStore = './src/data/store.json';
 
 const app = express();
 
 app.use(cors());
+
+app.use(express.static(path.join(__dirname, '../dist/')));
 
 app.get('/api/numbers', function(req, res) {
 
@@ -20,7 +28,7 @@ app.get('/api/numbers', function(req, res) {
     let results = [];
     if (fs.existsSync(jsonStore)) {
         let jsonFileReader = fs.readFileSync(jsonStore, 'utf8');
-        results = JSON.parse(jsonFileReader);
+        if(jsonFileReader) results = JSON.parse(jsonFileReader);
     }
     
 
@@ -45,8 +53,15 @@ app.get('/api/numbers', function(req, res) {
     });
 });
 
-app.listen(port, function() {1
-    console.log('App is running on port: ', port);
+app.get('*', (req, res) => res.status(200)
+.sendFile(path.join(__dirname, '../dist/index.html')));
+
+app.listen(port, function(error) {
+    if(error) {
+        console.log('Error: ', error);
+    } else {
+        console.log('App is running on port: ', port);
+    }
 });
 
 module.exports = app;

@@ -10,13 +10,13 @@
           >Previous</button>
           <button
             class="pagination-next"
-            @click="currentPage = currentPage + 1"
+            @click="currentPage = currentPage + 1;"
             :disabled="currentPage == totalCount/limit"
           >Next page</button>
           <ul class="pagination-list">
             <li>
               <a
-                @click="order = 'ascending'"
+                @click="order = 'ascending'; currentPage = 1"
                 :disabled="order == 'ascending'"
                 class="pagination-link ascending"
               >
@@ -27,7 +27,18 @@
             </li>
             <li>
               <a
-                @click="order = 'descending'"
+                @click="order = 'recent'; currentPage = 1"
+                :disabled="order == 'recent'"
+                class="pagination-link recent"
+              >
+                <span class="icon is-small">
+                  <i class="fas fa-history"></i>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a
+                @click="order = 'descending'; currentPage = 1"
                 :disabled="order == 'descending'"
                 class="pagination-link descending"
               >
@@ -39,34 +50,59 @@
             <li>
               <button
                 @click="generateNumbers()"
-                class="pagination-link has-text-link generate"
+                class="pagination-link generate"
               >Generate Numbers</button>
             </li>
           </ul>
         </nav>
       </div>
     </div>
-    <div class="panel-block">
+    <div id="page-info" class="panel-block">
       <div class="column is-flex">
         <div>
+          <span style="text-transform: capitalize;">Sorting: {{order}}</span>
+        </div>
+        <div v-if="totalCount" class="is-pulled-right">
           <span>Page {{currentPage}} of {{totalCount / limit}}</span>
         </div>
       </div>
     </div>
-    <p v-if="!numbers.length" class="panel-block">You haven't generated any phone number</p>
-    <div v-for="number in paginatedNumbers" :key="number.id" class="panel-block">
-      <div class="column is-one-quarter is-flex" id="list" style="margin: 0 10px;">
-        <p>
-          <i class="fas fa-mobile-alt" aria-hidden="true"></i>
-          {{number.value}}
-        </p>
-      </div>
-      <div class="column">
-        <p class="is-pulled-right is-size-7 has-text-grey">
-          {{new Date(number.timestamp).toUTCString()}}
-        </p>
-      </div>
+    <p v-if="!numbers.length && !loading && !error" class="panel-block">
+      You haven't generated any phone number
+    </p>
+    <progress v-if="loading&&  !error" id="loading-icon" class="progress is-small" max="100">
+    </progress>
+    <div id="error" v-if="error.length && !loading">
+      <p>{{error}}</p>
+      <span id="refresh-icon" class="icon">
+        <i class="fas fa-icon fa-redo"></i>
+      </span>
     </div>
+    <!-- Add this tag to enable fade animation -->
+    <!-- <transition-group name="list" tag="div"> -->
+      <div
+        v-for="number in paginatedNumbers"
+        :key="number.id"
+        class="panel-block"
+        id="list"
+      >
+        <div class="column is-one-quarter is-flex" id="list-item">
+          <p>
+            <span class="icon is-small">
+              <i class="fas fa-mobile-alt" aria-hidden="true"></i>
+            </span>
+            <span style="vertical-align: text-bottom;">
+              {{number.value}}
+            </span>
+          </p>
+        </div>
+        <div class="column">
+          <p class="is-pulled-right is-size-7 has-text-grey">
+            {{new Date(number.timestamp).toUTCString().replace(' GMT', '')}}
+          </p>
+        </div>
+      </div>
+    <!-- </transition-group> -->
   </nav>
 </template>
 
@@ -78,28 +114,40 @@ export default {
   data() {
     return {
       numbers: [],
+      // paginatedNumbers: [], // This is also required for animation
       currentPage: 1,
       limit: 10,
       totalCount: 0,
-      order: 'descending'
+      order: 'recent',
+      loading: false,
+      error: ''
     };
   },
   methods: {
     generateNumbers() {
-      const getPromise = axios.get('http://localhost:8000/api/numbers');
+      const getPromise = axios.get(`${process.env.API_URL}/api/numbers`);
+      this.loading = true;
       getPromise
         .then((response) => {
           this.totalCount = response.data.numbers.length;
           this.numbers = response.data.numbers;
+          this.loading = false;
+        })
+        .catch(() => {
+          this.error = 'An error occured, try refreshing the page'
+          this.loading = false;
         })
       return getPromise;
     },
-    sort(data, order) {
+    sort(value, order) {
+      const data = JSON.parse(JSON.stringify(value));
       switch (order) {
         case 'ascending':
-          return data.sort((a, b) => this.removePrefix(a) - removePrefix(b));
+          return data.sort((a, b) => this.removePrefix(a) - this.removePrefix(b));
         case 'descending':
-          return data.sort((a, b) => this.removePrefix(b) - removePrefix(a));
+          return data.sort((a, b) => this.removePrefix(b) - this.removePrefix(a));
+        case 'recent':
+          return data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         default:
           return data;
       }
@@ -111,6 +159,11 @@ export default {
   mounted() {
     this.generateNumbers();
   },
+  /**
+   * Take out the computed property and replace with asyncComputed below
+   * It sets the value asynchronously with a timeout of 5s
+   * - Required for animating list of numbers
+   */
   computed: {
     paginatedNumbers() {
       if (this.numbers.length) {
@@ -122,6 +175,20 @@ export default {
       return [];
     }
   }
+  // asyncComputed: {
+  //   paginate() {
+  //     if (this.numbers.length) {
+  //       const self = this;
+  //       const start = this.limit * (this.currentPage - 1);
+  //       const end = this.limit * this.currentPage;
+  //       const numbers = this.sort(this.numbers, this.order);
+  //       this.paginatedNumbers = [];
+  //       setTimeout(() => {
+  //         self.paginatedNumbers = numbers.slice(start, end);
+  //       }, 500);
+  //     }
+  //   }
+  // }
 };
 </script>
 
@@ -143,25 +210,103 @@ nav.panel {
   width: 100%;
   height: 100%;
 }
+nav.pagination {
+  width: 100%;
+}
 /* a {
-  color: #3273dc;
+  color: #7c5eed;
 } */
 button {
-  color: #3273dc;
+  color: #623cea;
 }
-button:hover {
-  border-color: #dc375f;
+button.generate {
+  width: 100%;
+  color: #fff;
+  background: #623cea;
+  border: navajowhite;
+  border-radius: 2rem;
+}
+button:hover, a:hover {
+  border-color: #623cea;
   cursor: pointer;
+}
+.panel-block {
+  border-left: none;
+  border-right: none;
+  color: #616994;
 }
 .select:not(.is-multiple) {
   margin: 0.25rem;
 }
-.pagination-link[disabled] {
-  background-color: #3273dc;
-  border-color: #3273dc;
-  color: #fff;
+.list-enter-active, .list-leave-active {
+  transition: opacity .5s;
 }
-.panel-block #list {
+.list-enter, .list-leave-to {
+  opacity: 0;
+}
+
+.pagination-link {
+  color: #623cea;
+}
+.pagination-next {
+  margin-right: .8rem;
+}
+
+.pagination-previous {
+  margin-left: .8rem;
+}
+.pagination-link,
+.pagination-next,
+.pagination-previous
+{
+  background-color: #fff;
+}
+.pagination-link[disabled],
+.pagination-next[disabled],
+.pagination-previous[disabled],
+#page-info {
+  background-color: #f2f4ff;
+  color: #623cea;
+}
+#page-info > .column {
+  justify-content: space-between;
+  padding: .5em 1.4em;
+}
+#list {
+  padding: .5em 1.4em;
+}
+.panel-block #list-item {
   padding: 0.2rem;
+  margin: 0 10px;
+}
+#list-item .icon {
+  color: #623cea;
+}
+.panel-block:first-child {
+  border-top: none;
+}
+.panel-block:last-child {
+  border-bottom: none;
+}
+#loading-icon {
+    border-radius: 0;
+    height: .35rem;
+}
+#loading-icon:indeterminate {
+    background-image: linear-gradient(to right,#623cea 30%,#dbdbdb 30%);
+}
+#error {
+    margin: 3rem;
+    font-size: 15px;
+    font-weight: 500;
+    color: #616994;
+}
+#refresh-icon {
+    padding: 15px;
+    margin: 10px;
+    border: 1px solid #61699457;
+    border-radius: 5rem;
+    font-size: 17px;
+    color: #7a80a6;
 }
 </style>

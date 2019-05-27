@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="columns">
+    <div class="columns is-desktop">
       <div class="column container is-flex">
         <Jumbotron/>
       </div>
@@ -27,15 +27,13 @@ export default {
 </script>
 
 <style>
-#app {
+html, #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  background: #009fff; /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, #009fff, #ec2f4b); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to right, #009fff, #ec2f4b)
+  color: #616994;
+  background: #f2f4ff;
 }
 #app {
   height: 100vh;
@@ -48,8 +46,18 @@ export default {
   justify-content: center;
 }
 .card {
-  width: 40rem;
+  width: 41rem;
   align-self: center;
   justify-self: center;
+  border-radius: 1rem;
+  margin: 10px;
+  min-height: 46rem;
+  overflow: hidden;
+}
+.has-text-primary {
+  color: #623cea !important;
+}
+.has-text-accent {
+  color: #616994 !important;
 }
 </style>

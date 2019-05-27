@@ -7,12 +7,11 @@ jest.setTimeout(20000)
 
 const response = {
   data: {
-    numbers: [{
-      id: 1,
-      value: '080-25463335',
-      time: 1558570810029
-    }],
-    message: '10 numbers was generated successfully'
+    numbers: [
+      { id: 2, value: '081-6049122', timestamp: 1558637087195 },
+      { id: 3, value: '081-0513661', timestamp: 1558637087195 },
+      { id: 4, value: '081-5799992', timestamp: 1558637087195 }],
+    message: '10  numbers was generated successfully'
   }
 };
 
@@ -20,20 +19,20 @@ jest.mock('axios', () => ({
   get: jest.fn(() => Promise.resolve({
     data: {
       numbers: [
-        {
-          id: 1,
-          value: '080-25463335',
-          time: 1558570810029
-        }
-      ],
-      message: '10 numbers was generated successfully'
+        { id: 2, value: '081-6049122', timestamp: 1558637087195 },
+        { id: 3, value: '081-0513661', timestamp: 1558637087195 },
+        { id: 4, value: '081-5799992', timestamp: 1558637087195 }],
+      message: '10  numbers was generated successfully'
     }
   }))
 }));
 
+// jest.mock('AsyncComputed');
+
+const removePrefix = jest.fn(obj => Number(obj.value.replace(/-/g, '')));
+
 describe('Main.vue', () => {
   let wrapper;
-
   beforeEach(() => {
     wrapper = mount(Main);
     jest.resetModules()
@@ -43,8 +42,8 @@ describe('Main.vue', () => {
   it('should have the following default values', () => {
     expect(wrapper.vm.currentPage).toBe(1);
     expect(wrapper.vm.limit).toBe(10);
-    expect(wrapper.vm.totalCount).toBe(1);
-    expect(wrapper.vm.numbers.length).toBe(1);
+    expect(wrapper.vm.totalCount).toBe(3);
+    expect(wrapper.vm.numbers.length).toBe(3);
   });
 
   it('should generate numbers on component mount', (done) => {
@@ -59,19 +58,26 @@ describe('Main.vue', () => {
   });
 
   it('should make a get request to get generated numbers', async (done) => {
-    try {
-      const result = await wrapper.vm.generateNumbers();
-      expect(result).toEqual(response);
-      expect(wrapper.vm.numbers).toEqual(response.data.numbers);
-      expect(wrapper.vm.totalCount).toEqual(response.data.numbers.length);
-      expect(axios.get).toBeCalledWith('http://localhost:8000/api/numbers');
-      done();
-    } catch (error) {
-      console.log('error', error);
-      done();
-    }
+    const result = await wrapper.vm.generateNumbers();
+    expect(result).toEqual(response);
+    expect(wrapper.vm.numbers).toEqual(response.data.numbers);
+    expect(wrapper.vm.totalCount).toEqual(response.data.numbers.length);
+    expect(wrapper.vm.loading).toBe(false);
+    expect(axios.get).toHaveBeenCalled();
+    done();
   });
 
+  it('should set error messages and disbale loading bar, if an error occured', (done) => {
+    axios.get.mockImplementation(() => Promise.reject());
+    const result = wrapper.vm.generateNumbers();
+    result
+      .then(() => {})
+      .catch(() => {
+        expect(wrapper.vm.loading).toBe(false);
+        expect(wrapper.vm.error).toEqual('An error occured, try refreshing the page');
+        done();
+      })
+  })
   it('should have the pagination buttons', () => {
     expect(wrapper.contains('nav.pagination')).toBe(true)
   });
@@ -136,16 +142,39 @@ describe('Main.vue', () => {
     it('should remove the prefix from the phone number value', () => {
       // Deep clone array
       const expected = JSON.parse(JSON.stringify(response.data.numbers))[0];
-      expected.value = 8025463335;
       const result = wrapper.vm.removePrefix(response.data.numbers[0]);
-      expect(result).toBe(expected.value);
+      expect(result).toEqual(removePrefix(expected));
     });
   });
 
   describe('Sort Method', () => {
-    it('should return the default data if order value is passed', () => {
+    it('should return the default data if sorting order value is null', () => {
       const result = wrapper.vm.sort(response.data.numbers);
-      expect(result).toBe(response.data.numbers);
-    })
-  })
+      expect(result).toEqual(response.data.numbers);
+    });
+
+    it('should sort the numbers in ascending order', () => {
+      const result = wrapper.vm.sort(response.data.numbers, 'ascending');
+      expect(result)
+        .toEqual(response.data.numbers.sort(
+          (a, b) => removePrefix(a) - removePrefix(b))
+        );
+    });
+
+    it('should sort the numbers in descending order', () => {
+      const result = wrapper.vm.sort(response.data.numbers, 'descending');
+      expect(result)
+        .toEqual(response.data.numbers.sort(
+          (a, b) => removePrefix(b) - removePrefix(a))
+        );
+    });
+
+    it('should sort the numbers by most recent', () => {
+      const result = wrapper.vm.sort(response.data.numbers, 'recent');
+      expect(result)
+        .toEqual(response.data.numbers.sort(
+          (a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        );
+    });
+  });
 });

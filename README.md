@@ -28,6 +28,9 @@ A Random Phone Number Generator built with VueJS (Frontend) and Nodejs (Backend)
 
 ![page-screenshot](https://github.com/johnkingzy/phone-number-generator-vuejs/blob/develop/client/static/screenshots/ui.jpg?raw=true)
 
+## How to setup
+- Clone this repository using ` git clone https://github.com/johnkingzy/phone-number-generator-vuejs`
+
 ## Client-side setup
 The `/client` folder contains the Frontend source.
 

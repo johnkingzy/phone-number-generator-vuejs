@@ -11,9 +11,10 @@ module.exports = {
     browser
       .url(devServer)
       .waitForElementVisible('#app', 5000)
-      .assert.elementPresent('.title')
-      .assert.containsText('h1', 'PHONE NUMBER GENERATOR')
-      // .assert.elementCount('span', 1)
+      .assert.elementPresent('div.title')
+      .assert.containsText('div.title div:nth-child(2) > strong:first-child', 'Phone')
+      .assert.containsText('div.title div:nth-child(2) > strong:nth-child(2)', 'Number')
+      .assert.containsText('div.title div:nth-child(2) > strong:nth-child(3)', 'Generator')
       .end()
   }
 }

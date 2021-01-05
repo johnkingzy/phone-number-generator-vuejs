@@ -15,7 +15,7 @@
     "coveralls": "jest --config test/unit/jest.conf.js --coverage && cat ./test/unit/coverage/lcov.info | coveralls"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "vue": "^2.5.2",
     "vue-async-computed": "^3.6.1"
   },

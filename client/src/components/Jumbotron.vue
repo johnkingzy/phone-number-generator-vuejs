@@ -26,6 +26,17 @@
           <a target="_blank" href="https://github.com/johnkingzy"> 𝕛𝕠𝕙𝕟𝕜𝕚𝕟𝕘𝕫𝕪 </a>
         </small>
       </p>
+      <nav class="breadcrumb has-bullet-separator" aria-label="breadcrumbs">
+        <ul>
+          <li>Bulma</li>
+          <li>VueJS</li>
+          <li>NodeJS</li>
+          <li>ExpressJS</li>
+          <li>Jest</li>
+          <li>Mocha</li>
+          <li>NightWatch</li>
+        </ul>
+      </nav>
     </div>
   </section>
 </template>
